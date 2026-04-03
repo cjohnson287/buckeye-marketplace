@@ -1,59 +1,138 @@
-import type { CartState, CartAction } from '../types/cart';
+import type { CartState, CartAction, CartResponse } from '../types/cart';
 
 export const initialCartState: CartState = {
-  items: [],
-  isOpen: false,
+  status: 'idle',
+  data: null,
+  error: null,
+  itemCount: 0,
 };
 
 export const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
-    case 'ADD_TO_CART': {
-      const { id, name, price, imageUrl } = action.payload;
-      const existingItem = state.items.find(item => item.productId === id);
-      if (existingItem) {
-        return {
-          ...state,
-          items: state.items.map(item =>
-            item.productId === id ? { ...item, quantity: item.quantity + 1 } : item
-          ),
-        };
-      } else {
-        return {
-          ...state,
-          items: [...state.items, { productId: id, productName: name, price, quantity: 1, imageUrl }],
-        };
-      }
+    case 'LOAD_START':
+      return {
+        ...state,
+        status: 'loading',
+        error: null,
+      };
+
+    case 'LOAD_SUCCESS': {
+      const itemCount = action.payload.items.reduce((sum, item) => sum + item.quantity, 0);
+      return {
+        ...state,
+        status: 'idle',
+        data: action.payload,
+        itemCount,
+        error: null,
+      };
     }
-    case 'REMOVE_FROM_CART':
+
+    case 'LOAD_ERROR':
       return {
         ...state,
-        items: state.items.filter(item => item.productId !== action.payload.productId),
+        status: 'error',
+        error: action.payload,
       };
-    case 'UPDATE_QUANTITY': {
-      const { productId, quantity } = action.payload;
-      if (quantity < 1) {
-        return {
-          ...state,
-          items: state.items.filter(item => item.productId !== productId),
-        };
-      } else {
-        return {
-          ...state,
-          items: state.items.map(item =>
-            item.productId === productId ? { ...item, quantity } : item
-          ),
-        };
-      }
+
+    case 'ADD_ITEM_START':
+      return {
+        ...state,
+        status: 'loading',
+        error: null,
+      };
+
+    case 'ADD_ITEM_SUCCESS': {
+      const itemCount = action.payload.items.reduce((sum, item) => sum + item.quantity, 0);
+      return {
+        ...state,
+        status: 'idle',
+        data: action.payload,
+        itemCount,
+        error: null,
+      };
     }
-    case 'CLEAR_CART':
+
+    case 'ADD_ITEM_ERROR':
       return {
         ...state,
-        items: [],
+        status: 'error',
+        error: action.payload,
       };
-    case 'TOGGLE_CART':
+
+    case 'UPDATE_QUANTITY_START':
       return {
         ...state,
-        isOpen: !state.isOpen,
+        status: 'loading',
+        error: null,
       };
+
+    case 'UPDATE_QUANTITY_SUCCESS': {
+      const itemCount = action.payload.items.reduce((sum, item) => sum + item.quantity, 0);
+      return {
+        ...state,
+        status: 'idle',
+        data: action.payload,
+        itemCount,
+        error: null,
+      };
+    }
+
+    case 'UPDATE_QUANTITY_ERROR':
+      return {
+        ...state,
+        status: 'error',
+        error: action.payload,
+      };
+
+    case 'REMOVE_ITEM_START':
+      return {
+        ...state,
+        status: 'loading',
+        error: null,
+      };
+
+    case 'REMOVE_ITEM_SUCCESS': {
+      const itemCount = action.payload.items.reduce((sum, item) => sum + item.quantity, 0);
+      return {
+        ...state,
+        status: 'idle',
+        data: action.payload,
+        itemCount,
+        error: null,
+      };
+    }
+
+    case 'REMOVE_ITEM_ERROR':
+      return {
+        ...state,
+        status: 'error',
+        error: action.payload,
+      };
+
+    case 'CLEAR_CART_START':
+      return {
+        ...state,
+        status: 'loading',
+        error: null,
+      };
+
+    case 'CLEAR_CART_SUCCESS':
+      return {
+        ...state,
+        status: 'idle',
+        data: action.payload,
+        itemCount: 0,
+        error: null,
+      };
+
+    case 'CLEAR_CART_ERROR':
+      return {
+        ...state,
+        status: 'error',
+        error: action.payload,
+      };
+
+    default:
+      return state;
   }
 };

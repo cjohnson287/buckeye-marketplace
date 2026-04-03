@@ -2,15 +2,19 @@
 import { createContext, useContext, useReducer, type ReactNode, useEffect } from 'react';
 import type { CartState, CartAction } from '../types/cart';
 import { cartReducer, initialCartState } from '../reducers/cartReducer';
+import * as cartAPI from '../api/cart';
 
 interface CartContextType {
   state: CartState;
   dispatch: (action: CartAction) => void;
+  addToCart: (productId: number, quantity?: number) => Promise<void>;
+  updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
+  removeFromCart: (cartItemId: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-
-const CART_STORAGE_KEY = 'buckeye-marketplace-cart';
 
 interface CartProviderProps {
   children: ReactNode;
@@ -19,51 +23,82 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [state, dispatch] = useReducer(cartReducer, initialCartState);
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
+  // Load cart from API on mount
+  const refreshCart = async () => {
+    dispatch({ type: 'LOAD_START' });
     try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (savedCart) {
-        const parsedCart: CartState = JSON.parse(savedCart);
-        // Only load if there are items (ignore isOpen state from storage)
-        if (parsedCart.items.length > 0) {
-          dispatch({ type: 'CLEAR_CART' }); // Clear initial empty state
-          parsedCart.items.forEach(item => {
-            dispatch({
-              type: 'ADD_TO_CART',
-              payload: {
-                id: item.productId,
-                name: item.productName,
-                price: item.price,
-                imageUrl: item.imageUrl,
-              },
-            });
-            // Set correct quantity if more than 1
-            if (item.quantity > 1) {
-              dispatch({
-                type: 'UPDATE_QUANTITY',
-                payload: { productId: item.productId, quantity: item.quantity },
-              });
-            }
-          });
-        }
-      }
+      const cart = await cartAPI.fetchCart();
+      dispatch({ type: 'LOAD_SUCCESS', payload: cart });
     } catch (error) {
-      console.warn('Failed to load cart from localStorage:', error);
+      const message = error instanceof Error ? error.message : 'Failed to load cart';
+      dispatch({ type: 'LOAD_ERROR', payload: message });
     }
+  };
+
+  useEffect(() => {
+    refreshCart();
   }, []);
 
-  // Save cart to localStorage whenever state changes
-  useEffect(() => {
+  const addToCart = async (productId: number, quantity: number = 1) => {
+    dispatch({ type: 'ADD_ITEM_START' });
     try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state));
+      const updatedCart = await cartAPI.addToCart(productId, quantity);
+      dispatch({ type: 'ADD_ITEM_SUCCESS', payload: updatedCart });
     } catch (error) {
-      console.warn('Failed to save cart to localStorage:', error);
+      const message = error instanceof Error ? error.message : 'Failed to add item to cart';
+      dispatch({ type: 'ADD_ITEM_ERROR', payload: message });
+      throw error;
     }
-  }, [state]);
+  };
+
+  const updateQuantity = async (cartItemId: number, quantity: number) => {
+    dispatch({ type: 'UPDATE_QUANTITY_START' });
+    try {
+      const updatedCart = await cartAPI.updateCartItemQuantity(cartItemId, quantity);
+      dispatch({ type: 'UPDATE_QUANTITY_SUCCESS', payload: updatedCart });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update quantity';
+      dispatch({ type: 'UPDATE_QUANTITY_ERROR', payload: message });
+      throw error;
+    }
+  };
+
+  const removeFromCart = async (cartItemId: number) => {
+    dispatch({ type: 'REMOVE_ITEM_START' });
+    try {
+      const updatedCart = await cartAPI.removeFromCart(cartItemId);
+      dispatch({ type: 'REMOVE_ITEM_SUCCESS', payload: updatedCart });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to remove item';
+      dispatch({ type: 'REMOVE_ITEM_ERROR', payload: message });
+      throw error;
+    }
+  };
+
+  const clearCartFunc = async () => {
+    dispatch({ type: 'CLEAR_CART_START' });
+    try {
+      const clearedCart = await cartAPI.clearCart();
+      dispatch({ type: 'CLEAR_CART_SUCCESS', payload: clearedCart });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to clear cart';
+      dispatch({ type: 'CLEAR_CART_ERROR', payload: message });
+      throw error;
+    }
+  };
 
   return (
-    <CartContext.Provider value={{ state, dispatch }}>
+    <CartContext.Provider
+      value={{
+        state,
+        dispatch,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart: clearCartFunc,
+        refreshCart,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

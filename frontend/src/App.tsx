@@ -3,6 +3,7 @@ import { CartProvider } from "./contexts/CartContext";
 import Layout from "./components/Layout";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import ProductListPage from "./pages/ProductListPage";
+import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
           <Route element={<Layout />}>
             <Route index element={<ProductListPage />} />
             <Route path="products/:id" element={<ProductDetailPage />} />
+            <Route path="cart" element={<CartPage />} />
             <Route path="checkout" element={<CheckoutPage />} />
           </Route>
         </Routes>

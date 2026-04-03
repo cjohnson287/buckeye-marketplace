@@ -1,0 +1,247 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.page h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-gray-dark);
+  margin: 0;
+}
+
+.emptyCart {
+  background: #fff;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.emptyCart p {
+  font-size: 1.1rem;
+  color: var(--color-gray-mid);
+  margin: 0 0 1.5rem;
+}
+
+.browseLink {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-scarlet);
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.browseLink:hover {
+  background: var(--color-scarlet-dark);
+}
+
+.cartTable {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.cartHeader {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1.2fr 1fr 0.5fr;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-gray-dark);
+}
+
+.cartItem {
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1.2fr 1fr 0.5fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cartItem:last-child {
+  border-bottom: none;
+}
+
+.columnProduct {
+  font-weight: 500;
+  color: var(--color-gray-dark);
+}
+
+.columnPrice,
+.columnSubtotal {
+  font-weight: 600;
+  color: var(--color-gray-dark);
+}
+
+.columnQuantity {
+  display: flex;
+  justify-content: center;
+}
+
+.quantityInput {
+  width: 70px;
+  padding: 0.5rem;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.quantityInput:focus {
+  outline: none;
+  border-color: var(--color-scarlet);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+}
+
+.columnAction {
+  display: flex;
+  justify-content: center;
+}
+
+.removeButton {
+  background: #fee2e2;
+  color: var(--color-scarlet);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.removeButton:hover {
+  background: #fca5a5;
+  color: white;
+}
+
+.itemError {
+  grid-column: 1 / -1;
+  color: var(--color-scarlet);
+  font-size: 0.85rem;
+  padding: 0 1rem;
+}
+
+.cartSummary {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-gray-dark);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.totalAmount {
+  color: var(--color-scarlet);
+}
+
+.cartActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.checkoutButton {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: var(--color-scarlet);
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.2s;
+  text-align: center;
+}
+
+.checkoutButton:hover {
+  background: var(--color-scarlet-dark);
+}
+
+.clearButton {
+  padding: 0.75rem 1.5rem;
+  background: #f3f4f6;
+  color: var(--color-gray-dark);
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.clearButton:hover {
+  background: #e5e7eb;
+}
+
+.continueShopping {
+  text-align: center;
+}
+
+.status,
+.error {
+  font-size: 1rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.status {
+  color: var(--color-gray-mid);
+  background: #f3f4f6;
+}
+
+.error {
+  color: var(--color-scarlet);
+  background: #fee2e2;
+}
+
+@media (max-width: 768px) {
+  .cartHeader {
+    grid-template-columns: 1fr 0.8fr 0.6fr;
+    gap: 0.5rem;
+  }
+
+  .columnSubtotal,
+  .columnAction,
+  .cartItem {
+    display: none;
+  }
+
+  .cartItem {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr 0.6fr;
+    gap: 0.5rem;
+  }
+
+  .cartActions {
+    flex-direction: column;
+  }
+
+  .checkoutButton,
+  .clearButton {
+    width: 100%;
+  }
+}

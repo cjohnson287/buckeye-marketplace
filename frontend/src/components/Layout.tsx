@@ -1,10 +1,9 @@
 import { Link, Outlet } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
-import CartSidebar from "./CartSidebar";
 import styles from "./Layout.module.css";
 
 export default function Layout() {
-  const { state, dispatch } = useCart();
+  const { state } = useCart();
 
   return (
     <div className={styles.layout}>
@@ -14,19 +13,19 @@ export default function Layout() {
             <span className={styles.logoIcon}>🌰</span>
             <h1 className={styles.title}>Buckeye Marketplace</h1>
           </Link>
-          <button
-            className={styles.cartButton}
-            onClick={() => dispatch({ type: 'TOGGLE_CART' })}
-            aria-label="Open cart"
-          >
-            🛒 ({state.items.length})
-          </button>
+          <nav className={styles.nav}>
+            <Link to="/cart" className={styles.cartLink} aria-label="View cart">
+              <span className={styles.cartIcon}>🛒</span>
+              {state.itemCount > 0 && (
+                <span className={styles.cartBadge}>{state.itemCount}</span>
+              )}
+            </Link>
+          </nav>
         </div>
       </header>
       <main className={styles.main}>
         <Outlet />
       </main>
-      <CartSidebar />
     </div>
   );
 }

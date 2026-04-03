@@ -14,7 +14,10 @@ type FetchState =
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [state, setState] = useState<FetchState>({ status: "loading" });
-  const { dispatch } = useCart();
+  const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [addToCartError, setAddToCartError] = useState<string | null>(null);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if (!id) return;
@@ -63,16 +66,23 @@ export default function ProductDetailPage() {
 
   const product = state.data;
 
-  const handleAddToCart = () => {
-    dispatch({
-      type: 'ADD_TO_CART',
-      payload: {
-        id: product.id,
-        name: product.title,
-        price: product.price,
-        imageUrl: product.imageUrl,
-      },
-    });
+  const handleAddToCart = async () => {
+    setIsAddingToCart(true);
+    setAddToCartError(null);
+    try {
+      await addToCart(product.id, quantity);
+      setQuantity(1); // Reset quantity after adding
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to add to cart";
+      setAddToCartError(message);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Math.max(1, parseInt(e.target.value) || 1);
+    setQuantity(value);
   };
 
   return (
@@ -112,13 +122,33 @@ export default function ProductDetailPage() {
               day: "numeric",
             })}
           </p>
-          <button
-            className={styles.addButton}
-            onClick={handleAddToCart}
-            aria-label={`Add ${product.title} to cart`}
-          >
-            Add to Cart
-          </button>
+
+          <div className={styles.purchaseSection}>
+            <div className={styles.quantityControl}>
+              <label htmlFor="quantity">Quantity:</label>
+              <input
+                id="quantity"
+                type="number"
+                min="1"
+                value={quantity}
+                onChange={handleQuantityChange}
+                className={styles.quantityInput}
+              />
+            </div>
+
+            <button
+              className={styles.addButton}
+              onClick={handleAddToCart}
+              aria-label={`Add ${product.title} to cart`}
+              disabled={isAddingToCart}
+            >
+              {isAddingToCart ? "Adding to cart..." : "Add to Cart"}
+            </button>
+
+            {addToCartError && (
+              <p className={styles.error}>{addToCartError}</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

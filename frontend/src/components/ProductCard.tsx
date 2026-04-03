@@ -2,25 +2,26 @@ import { Link } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import type { Product } from "../types/product";
 import styles from "./ProductCard.module.css";
+import { useState } from "react";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { dispatch } = useCart();
+  const { addToCart } = useCart();
+  const [isAdding, setIsAdding] = useState(false);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
-    dispatch({
-      type: 'ADD_TO_CART',
-      payload: {
-        id: product.id,
-        name: product.title,
-        price: product.price,
-        imageUrl: product.imageUrl,
-      },
-    });
+    setIsAdding(true);
+    try {
+      await addToCart(product.id, 1);
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -49,8 +50,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         className={styles.addButton}
         onClick={handleAddToCart}
         aria-label={`Add ${product.title} to cart`}
+        disabled={isAdding}
       >
-        Add to Cart
+        {isAdding ? "Adding..." : "Add to Cart"}
       </button>
     </div>
   );

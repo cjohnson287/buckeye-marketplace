@@ -20,6 +20,7 @@
   display: flex;
   align-items: center;
   height: 64px;
+  justify-content: space-between;
 }
 
 .logo {
@@ -43,6 +44,49 @@
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.cartLink {
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  color: white;
+  font-size: 1.5rem;
+  transition: opacity 0.2s;
+}
+
+.cartLink:hover {
+  opacity: 0.8;
+}
+
+.cartIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartBadge {
+  position: absolute;
+  top: -8px;
+  right: -12px;
+  background: #fbbf24;
+  color: #78350f;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-scarlet);
 }
 
 .cartButton {
