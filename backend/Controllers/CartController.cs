@@ -1,17 +1,19 @@
 using backend.Data;
 using backend.DTOs;
 using backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CartController : ControllerBase
 {
     private readonly MarketplaceContext _context;
-    private const string HardcodedUserId = "user-1";
 
     public CartController(MarketplaceContext context)
     {
@@ -24,10 +26,14 @@ public class CartController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<CartDto>> GetCart()
     {
+        var userId = GetUserId();
+        if (userId is null)
+            return Unauthorized();
+
         var cart = await _context.Carts
             .Include(c => c.Items)
             .ThenInclude(ci => ci.Product)
-            .FirstOrDefaultAsync(c => c.UserId == HardcodedUserId);
+            .FirstOrDefaultAsync(c => c.UserId == userId);
 
         if (cart == null)
         {
@@ -45,6 +51,10 @@ public class CartController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<CartDto>> AddToCart([FromBody] AddToCartRequest request)
     {
+        var userId = GetUserId();
+        if (userId is null)
+            return Unauthorized();
+
         // Validate request
         if (request.Quantity < 1)
             return BadRequest(new { error = "Quantity must be at least 1" });
@@ -58,11 +68,11 @@ public class CartController : ControllerBase
         var cart = await _context.Carts
             .Include(c => c.Items)
             .ThenInclude(ci => ci.Product)
-            .FirstOrDefaultAsync(c => c.UserId == HardcodedUserId);
+            .FirstOrDefaultAsync(c => c.UserId == userId);
 
         if (cart == null)
         {
-            cart = new Cart { UserId = HardcodedUserId };
+            cart = new Cart { UserId = userId };
             _context.Carts.Add(cart);
             await _context.SaveChangesAsync();
         }
@@ -103,6 +113,10 @@ public class CartController : ControllerBase
     [HttpPut("{cartItemId}")]
     public async Task<ActionResult<CartDto>> UpdateQuantity(int cartItemId, [FromBody] UpdateCartItemRequest request)
     {
+        var userId = GetUserId();
+        if (userId is null)
+            return Unauthorized();
+
         if (request.Quantity < 1)
             return BadRequest(new { error = "Quantity must be at least 1" });
 
@@ -114,7 +128,7 @@ public class CartController : ControllerBase
         if (cartItem == null)
             return NotFound(new { error = "Cart item not found" });
 
-        if (cartItem.Cart.UserId != HardcodedUserId)
+        if (cartItem.Cart.UserId != userId)
             return Forbid();
 
         cartItem.Quantity = request.Quantity;
@@ -137,6 +151,10 @@ public class CartController : ControllerBase
     [HttpDelete("{cartItemId}")]
     public async Task<ActionResult<CartDto>> RemoveFromCart(int cartItemId)
     {
+        var userId = GetUserId();
+        if (userId is null)
+            return Unauthorized();
+
         var cartItem = await _context.CartItems
             .Include(ci => ci.Cart)
             .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
@@ -144,7 +162,7 @@ public class CartController : ControllerBase
         if (cartItem == null)
             return NotFound(new { error = "Cart item not found" });
 
-        if (cartItem.Cart.UserId != HardcodedUserId)
+        if (cartItem.Cart.UserId != userId)
             return Forbid();
 
         var cartId = cartItem.CartId;
@@ -167,18 +185,27 @@ public class CartController : ControllerBase
     [HttpDelete("clear")]
     public async Task<ActionResult<CartDto>> ClearCart()
     {
+        var userId = GetUserId();
+        if (userId is null)
+            return Unauthorized();
+
         var cart = await _context.Carts
             .Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.UserId == HardcodedUserId);
+            .FirstOrDefaultAsync(c => c.UserId == userId);
 
         if (cart == null)
             return Ok(new CartDto(0, new List<CartItemDto>(), 0m));
 
-        cart.Items.Clear();
+        _context.CartItems.RemoveRange(cart.Items);
         cart.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
         return Ok(MapToDto(cart));
+    }
+
+    private string? GetUserId()
+    {
+        return User.FindFirstValue(ClaimTypes.NameIdentifier);
     }
 
     private CartDto MapToDto(Cart cart)

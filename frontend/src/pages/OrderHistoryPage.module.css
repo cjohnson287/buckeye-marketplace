@@ -1,0 +1,25 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  background: white;
+}
+
+.status {
+  color: #333;
+}
+
+.error {
+  color: #b00020;
+}

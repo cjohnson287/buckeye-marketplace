@@ -1,4 +1,4 @@
-import type { CartState, CartAction, CartResponse } from '../types/cart';
+import type { CartState, CartAction } from '../types/cart';
 
 export const initialCartState: CartState = {
   status: 'idle',

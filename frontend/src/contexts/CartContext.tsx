@@ -3,6 +3,7 @@ import { createContext, useContext, useReducer, type ReactNode, useEffect } from
 import type { CartState, CartAction } from '../types/cart';
 import { cartReducer, initialCartState } from '../reducers/cartReducer';
 import * as cartAPI from '../api/cart';
+import { useAuth } from './AuthContext';
 
 interface CartContextType {
   state: CartState;
@@ -22,22 +23,34 @@ interface CartProviderProps {
 
 export function CartProvider({ children }: CartProviderProps) {
   const [state, dispatch] = useReducer(cartReducer, initialCartState);
+  const { state: authState } = useAuth();
+
+  const emptyCart = { id: 0, items: [], total: 0 };
 
   // Load cart from API on mount
   const refreshCart = async () => {
+    if (!authState.isAuthenticated) {
+      dispatch({ type: 'LOAD_SUCCESS', payload: emptyCart });
+      return;
+    }
+
     dispatch({ type: 'LOAD_START' });
     try {
       const cart = await cartAPI.fetchCart();
       dispatch({ type: 'LOAD_SUCCESS', payload: cart });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load cart';
+      if (message.toLowerCase().includes('log in')) {
+        dispatch({ type: 'LOAD_SUCCESS', payload: emptyCart });
+        return;
+      }
       dispatch({ type: 'LOAD_ERROR', payload: message });
     }
   };
 
   useEffect(() => {
-    refreshCart();
-  }, []);
+    void refreshCart();
+  }, [authState.isAuthenticated]);
 
   const addToCart = async (productId: number, quantity: number = 1) => {
     dispatch({ type: 'ADD_ITEM_START' });

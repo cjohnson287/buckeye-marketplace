@@ -1,0 +1,67 @@
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.list li {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 0.6rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.rowActions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.orderControls {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.status {
+  color: #333;
+}
+
+.error {
+  color: #b00020;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
