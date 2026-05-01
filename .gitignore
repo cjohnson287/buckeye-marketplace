@@ -1,0 +1,15 @@
+
+# .NET build output
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Deployment zips
+*.zip
+
+# Frontend build/env
+frontend/dist/
+frontend/.env.production
+.env
+.env.local
